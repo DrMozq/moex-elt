@@ -1,0 +1,39 @@
+import json
+import os
+from collections.abc import Iterable, Iterator
+from datetime import date
+from pathlib import Path
+from typing import Any
+
+
+def raw_path(root: Path, dataset: str, board: str, trade_date: date) -> Path:
+    """Return the path of a raw file, e.g. root/history/TQBR/2026-10-06.jsonl."""
+    return root / dataset / board / f"{trade_date.isoformat()}.jsonl"
+
+
+def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> int:
+    """Write records to a JSON Lines file atomically. Return the number of records."""
+    path_tmp = path.with_name(path.name + ".tmp")
+    path_tmp.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(path_tmp, "w", encoding="utf-8") as f:
+            cnt = 0
+            for record in records:
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+                cnt += 1
+    except BaseException:
+        path_tmp.unlink(missing_ok=True)
+        raise
+
+    os.replace(path_tmp, path)
+    return cnt
+
+
+def read_jsonl(path: Path) -> Iterator[dict[str, Any]]:
+    """Yield records from a JSON Lines file, one at a time."""
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            jsonl = line.strip()
+            if not jsonl:
+                continue
+            yield json.loads(jsonl)
