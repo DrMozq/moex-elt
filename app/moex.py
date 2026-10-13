@@ -44,3 +44,12 @@ def iter_history(
         start += cursor["PAGESIZE"]
         if start >= cursor["TOTAL"]:
             break
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+    with ApiClient("https://iss.moex.com/iss") as client:
+        for d in (date(2026, 10, 6), date(2026, 10, 4), date(2026, 3, 6)):
+            print(d, len(list(iter_history(client, d))))

@@ -102,3 +102,23 @@ class ApiClient:
             raise RetryableError(f"Server error {status} for {url}")
         else:
             raise ApiError(f"Client error {status} for {url}", status)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+    with ApiClient("https://iss.moex.com/iss") as client:
+        data = client.get(
+            "history/engines/stock/markets/shares/boards/TQBR/securities.json",
+            {"date": "2026-10-06"},
+        )
+    print(data["history.cursor"])
+
+    delays: list[float] = []
+    with ApiClient("http://10.255.255.1", timeout=1, sleep=delays.append) as client:
+        try:
+            client.get("anything")
+        except RetryableError as e:
+            print("gave up:", e)
+    print(delays)

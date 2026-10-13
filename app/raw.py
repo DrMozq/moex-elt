@@ -37,3 +37,17 @@ def read_jsonl(path: Path) -> Iterator[dict[str, Any]]:
             if not jsonl:
                 continue
             yield json.loads(jsonl)
+
+
+if __name__ == "__main__":
+    from app.http import ApiClient
+    from app.moex import iter_history
+
+    root = Path("data/raw")
+    with ApiClient("https://iss.moex.com/iss") as client:
+        for d in (date(2026, 10, 6), date(2026, 10, 4)):
+            path = raw_path(root, "history", "TQBR", d)
+            n = write_jsonl(path, iter_history(client, d))
+            print(path, n)
+
+    print(next(read_jsonl(raw_path(root, "history", "TQBR", date(2026, 10, 6)))))

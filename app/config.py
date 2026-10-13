@@ -59,3 +59,7 @@ def load_settings() -> Settings:
         moex_base_url=moex_base_url,
         raw_dir=raw_dir,
     )
+
+
+if __name__ == "__main__":
+    print(load_settings())
