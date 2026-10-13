@@ -1,6 +1,9 @@
 class PipelineError(Exception):
     """Base class for all pipeline exceptions."""
 
+class ConfigError(PipelineError):
+    """Required settings are missing or invalid."""
+
 class RetryableError(PipelineError):
     """Temporary failure; retrying may help."""
 
