@@ -40,8 +40,8 @@ def read_jsonl(path: Path) -> Iterator[dict[str, Any]]:
 
 
 if __name__ == "__main__":
-    from app.http import ApiClient
-    from app.moex import iter_history
+    from app.extract.http import ApiClient
+    from app.extract.moex import iter_history
 
     root = Path("data/raw")
     with ApiClient("https://iss.moex.com/iss") as client:

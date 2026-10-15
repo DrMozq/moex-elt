@@ -4,7 +4,7 @@ from datetime import date
 from typing import Any
 
 from app.errors import DataError
-from app.http import ApiClient
+from app.extract.http import ApiClient
 
 logger = logging.getLogger(__name__)
 

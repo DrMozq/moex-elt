@@ -6,6 +6,11 @@ from dotenv import load_dotenv
 
 from app.errors import ConfigError
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SQL_DIR = PROJECT_ROOT / "sql"
+DDL_DIR = SQL_DIR / "ddl"
+TRANSFORM_DIR = SQL_DIR / "transform"
+
 
 @dataclass(frozen=True)
 class DbSettings:

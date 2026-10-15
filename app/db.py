@@ -7,7 +7,7 @@ from pathlib import Path
 import psycopg2
 from psycopg2.extensions import connection
 
-from app.config import DbSettings
+from app.config import DDL_DIR, DbSettings
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +25,11 @@ def db_connection(settings: DbSettings) -> Generator[connection]:
         conn.close()
 
 
-def execute_file(conn: connection, path: Path) -> None:
+def execute_file(conn: connection, path: Path) -> int:
     sql = path.read_text(encoding="utf-8")
     with conn.cursor() as cur:
         cur.execute(sql)
+        return cur.rowcount
 
 
 def init_db(conn: connection, ddl_dir: Path) -> None:
@@ -40,9 +41,6 @@ def init_db(conn: connection, ddl_dir: Path) -> None:
         logger.info("Applying %s", path.name)
         execute_file(conn, path)
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DDL_DIR = PROJECT_ROOT / "sql" / "ddl"
 
 if __name__ == "__main__":
     from app.config import load_settings
