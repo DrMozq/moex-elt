@@ -40,14 +40,21 @@ def read_jsonl(path: Path) -> Iterator[dict[str, Any]]:
 
 
 if __name__ == "__main__":
+    from app.config import load_settings
     from app.extract.http import ApiClient
-    from app.extract.moex import iter_history
+    from app.extract.moex import iter_history, iter_securities
 
     root = Path("data/raw")
     with ApiClient("https://iss.moex.com/iss") as client:
+        # history
         for d in (date(2026, 10, 6), date(2026, 10, 4)):
             path = raw_path(root, "history", "TQBR", d)
             n = write_jsonl(path, iter_history(client, d))
             print(path, n)
+            
+        print(next(read_jsonl(raw_path(root, "history", "TQBR", date(2026, 10, 6)))))
 
-    print(next(read_jsonl(raw_path(root, "history", "TQBR", date(2026, 10, 6)))))
+        # securities
+        settings = load_settings()
+        path = raw_path(settings.raw_dir, "securities", "TQBR", date.today())
+        print(write_jsonl(path, iter_securities(client)))

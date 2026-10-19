@@ -28,7 +28,7 @@ def iter_history(
             cursor = dict(zip(cursor_block["columns"], cursor_block["data"][0]))
         except (KeyError, IndexError) as e:
             raise DataError(
-                f"Unexpected response structure for {trade_date}: {e!r}"
+                f"Unexpected response structure for {board} history {trade_date}: {e!r}"
             ) from e
 
         logger.debug(
@@ -46,10 +46,35 @@ def iter_history(
             break
 
 
+def iter_securities(client: ApiClient, board: str = "TQBR") -> Iterator[dict[str, Any]]:
+    """Yield the current reference data for all securities on a board."""
+    path = f"engines/stock/markets/shares/boards/{board}/securities.json"
+    params = {"iss.meta": "off", "iss.only": "securities"}
+    response = client.get(path, params)
+
+    try:
+        columns = response["securities"]["columns"]
+        data = response["securities"]["data"]
+    except KeyError as e:
+        raise DataError(
+            f"Unexpected response structure for {board} securities: {e!r}"
+        ) from e
+
+    logger.debug("Securities for %s: rows=%d", board, len(data))
+    for row in data:
+        yield dict(zip(columns, row))
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     with ApiClient("https://iss.moex.com/iss") as client:
+        # history
         for d in (date(2026, 10, 6), date(2026, 10, 4), date(2026, 3, 6)):
             print(d, len(list(iter_history(client, d))))
+
+        # securities
+        records = list(iter_securities(client))
+        print(len(records))
+        print(records[0])

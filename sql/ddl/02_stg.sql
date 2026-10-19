@@ -26,3 +26,36 @@ CREATE TABLE IF NOT EXISTS stg.history (
     source_file              TEXT           NOT NULL,
     loaded_at                TIMESTAMPTZ    NOT NULL DEFAULT now()
 );
+
+
+CREATE TABLE IF NOT EXISTS stg.securities (
+    secid                    TEXT,
+    boardid                  TEXT,
+    shortname                TEXT,
+    prevprice                TEXT,
+    lotsize                  TEXT,
+    facevalue                TEXT,
+    status                   TEXT,
+    boardname                TEXT,
+    decimals                 TEXT,
+    secname                  TEXT,
+    remarks                  TEXT,
+    marketcode               TEXT,
+    instrid                  TEXT,
+    sectorid                 TEXT,
+    minstep                  TEXT,
+    prevwaprice              TEXT,
+    faceunit                 TEXT,
+    prevdate                 TEXT,
+    issuesize                TEXT,
+    isin                     TEXT,
+    latname                  TEXT,
+    regnumber                TEXT,
+    prevlegalcloseprice      TEXT,
+    currencyid               TEXT,
+    sectype                  TEXT,
+    listlevel                TEXT,
+    settledate               TEXT,
+    source_file              TEXT           NOT NULL,
+    loaded_at                TIMESTAMPTZ    NOT NULL DEFAULT now()
+);
