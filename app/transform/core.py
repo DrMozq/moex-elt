@@ -9,10 +9,23 @@ logger = logging.getLogger(__name__)
 
 
 def load_core_daily_quotes(conn: connection) -> int:
-    """Upsert rows from stg.history into core.daily_quotes. Return the number of affected rows."""
-    count = execute_file(conn, TRANSFORM_DIR / "core_daily_quotes.sql")
-    logger.info("Upserted %d rows into core.daily_quotes", count)
-    return count
+    """Upsert rows from stg.history into core.daily_quotes.
+
+    Return the number of affected rows.
+    """
+    upserted = execute_file(conn, TRANSFORM_DIR / "core_daily_quotes.sql")
+    logger.debug("Upserted %d rows into core.daily_quotes", upserted)
+    return upserted
+
+
+def load_core_securities(conn: connection) -> int:
+    """Upsert rows from stg.securities into core.securities.
+
+    Return the number of affected rows.
+    """
+    upserted = execute_file(conn, TRANSFORM_DIR / "core_securities.sql")
+    logger.debug("Upserted %d rows into core.securities", upserted)
+    return upserted
 
 
 if __name__ == "__main__":
@@ -23,3 +36,4 @@ if __name__ == "__main__":
     settings = load_settings()
     with db_connection(settings.db) as conn:
         print(load_core_daily_quotes(conn))
+        print(load_core_securities(conn))

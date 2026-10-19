@@ -16,3 +16,27 @@ CREATE TABLE IF NOT EXISTS core.daily_quotes (
     updated_at          TIMESTAMPTZ     NOT NULL DEFAULT now(),
     PRIMARY KEY (boardid, secid, trade_date)
 );
+
+CREATE TABLE IF NOT EXISTS core.securities (
+    boardid             TEXT            NOT NULL,
+    secid               TEXT            NOT NULL,
+    shortname           TEXT            NOT NULL,
+    secname             TEXT,
+    latname             TEXT,
+    isin                TEXT            NOT NULL,
+    regnumber           TEXT,
+    sectype             TEXT            NOT NULL,
+    security_class      TEXT            NOT NULL,
+    listlevel           SMALLINT,
+    lotsize             INT,
+    facevalue           NUMERIC,
+    faceunit            TEXT,
+    currencyid          TEXT,
+    decimals            SMALLINT,
+    minstep             NUMERIC,
+    issuesize           BIGINT,
+    status              TEXT,
+    last_seen_date      DATE            NOT NULL,
+    updated_at          TIMESTAMPTZ     NOT NULL DEFAULT now(),
+    PRIMARY KEY (boardid, secid)
+);

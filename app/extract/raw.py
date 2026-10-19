@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Any
 
 
-def raw_path(root: Path, dataset: str, board: str, trade_date: date) -> Path:
+def raw_path(root: Path, dataset: str, board: str, as_of_date: date) -> Path:
     """Return the path of a raw file, e.g. root/history/TQBR/2026-10-06.jsonl."""
-    return root / dataset / board / f"{trade_date.isoformat()}.jsonl"
+    return root / dataset / board / f"{as_of_date.isoformat()}.jsonl"
 
 
 def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> int:

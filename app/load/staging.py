@@ -96,7 +96,7 @@ def _replace_from_jsonl(
         cursor.execute(truncate_query)
         cursor.copy_expert(copy_query.as_string(conn), buf)
 
-    logger.info("Loaded %d rows from %s into %s", count, path.name, table)
+    logger.debug("Loaded %d rows from %s into %s", count, path.name, table)
     return count
 
 

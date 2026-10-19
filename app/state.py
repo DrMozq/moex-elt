@@ -6,9 +6,9 @@ VALID_STATUSES = ("success", "failed")
 
 
 def get_watermark(conn: connection, dataset: str, board: str) -> date | None:
-    """Return the latest successfully loaded trade date, or None if nothing was loaded yet."""
+    """Return the latest successfully loaded as-of date, or None if nothing was loaded yet."""
     query = """
-        SELECT max(trade_date)
+        SELECT max(as_of_date)
         FROM meta.load_log
         WHERE dataset = %s AND board = %s AND status = 'success'
     """
@@ -24,7 +24,7 @@ def log_load(
     conn: connection,
     dataset: str,
     board: str,
-    trade_date: date,
+    as_of_date: date,
     status: str,
     rows_loaded: int | None = None,
     error: str | None = None,
@@ -35,12 +35,12 @@ def log_load(
 
     query = """
         INSERT INTO meta.load_log (
-            dataset, board, trade_date, status, rows_loaded, error
+            dataset, board, as_of_date, status, rows_loaded, error
         )
         VALUES (%s, %s, %s, %s, %s, %s)
     """
     with conn.cursor() as cursor:
-        cursor.execute(query, (dataset, board, trade_date, status, rows_loaded, error))
+        cursor.execute(query, (dataset, board, as_of_date, status, rows_loaded, error))
 
 
 if __name__ == "__main__":
