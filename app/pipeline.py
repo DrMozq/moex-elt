@@ -9,7 +9,7 @@ from app.errors import ConfigError
 from app.extract.http import ApiClient
 from app.extract.moex import iter_history
 from app.extract.raw import raw_path, write_jsonl
-from app.load.staging import load_history_file, truncate_history
+from app.load.staging import load_history_file
 from app.state import get_watermark, log_load
 from app.transform.core import load_core_daily_quotes
 
@@ -69,7 +69,6 @@ def run(
 
                 # load + transform
                 with db_connection(settings.db) as conn:
-                    truncate_history(conn)
                     load_history_file(conn, path)
                     rows_loaded = load_core_daily_quotes(conn)
                     log_load(conn, DATASET, BOARD, trade_date, "success", rows_loaded)
