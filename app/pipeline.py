@@ -15,6 +15,7 @@ from app.extract.raw import raw_path, write_jsonl
 from app.load.staging import load_history_file, load_securities_file
 from app.state import get_watermark, log_load
 from app.transform.core import load_core_daily_quotes, load_core_securities
+from app.transform.marts import build_daily_returns
 
 logger = logging.getLogger(__name__)
 
@@ -86,10 +87,17 @@ def _ingest(
         raise
 
 
+def _build_marts(settings: Settings) -> None:
+    """Rebuild all marts from core in one transaction."""
+    with db_connection(settings.db) as conn:
+        rows = build_daily_returns(conn)
+    logger.info("Rebuilt marts: daily_returns=%d rows", rows)
+
+
 def run(
     settings: Settings, date_from: date | None = None, date_to: date | None = None
 ) -> None:
-    """Refresh the reference snapshot, then load all pending trade dates."""
+    """Refresh the reference snapshot, load pending trade dates and rebuild marts."""
     with ApiClient(settings.moex_base_url) as client:
         _ingest(
             settings,
@@ -102,20 +110,22 @@ def run(
 
         with db_connection(settings.db) as conn:
             dates = _resolve_dates(conn, date_from, date_to)
-        if not dates:
-            logger.info("Nothing to load")
-            return
 
-        logger.info("Loading %d dates: %s .. %s", len(dates), dates[0], dates[-1])
-        for trade_date in dates:
-            _ingest(
-                settings,
-                HISTORY,
-                trade_date,
-                iter_history(client, trade_date, BOARD),
-                load_history_file,
-                load_core_daily_quotes,
-            )
+        if dates:
+            logger.info("Loading %d dates: %s .. %s", len(dates), dates[0], dates[-1])
+            for trade_date in dates:
+                _ingest(
+                    settings,
+                    HISTORY,
+                    trade_date,
+                    iter_history(client, trade_date, BOARD),
+                    load_history_file,
+                    load_core_daily_quotes,
+                )
+        else:
+            logger.info("No new trade dates to load")
+
+    _build_marts(settings)
 
 
 if __name__ == "__main__":
