@@ -15,7 +15,11 @@ from app.extract.raw import raw_path, write_jsonl
 from app.load.staging import load_history_file, load_securities_file
 from app.state import get_watermark, log_load
 from app.transform.core import load_core_daily_quotes, load_core_securities
-from app.transform.marts import build_daily_returns, build_market_daily
+from app.transform.marts import (
+    build_daily_returns,
+    build_market_daily,
+    build_top_movers,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -92,8 +96,12 @@ def _build_marts(settings: Settings) -> None:
     with db_connection(settings.db) as conn:
         returns = build_daily_returns(conn)
         market = build_market_daily(conn)
+        top_movers = build_top_movers(conn)
     logger.info(
-        "Rebuilt marts: daily_returns=%d rows, market_daily=%d rows", returns, market
+        "Rebuilt marts: daily_returns=%d, market_daily=%d, top_movers=%d rows",
+        returns,
+        market,
+        top_movers,
     )
 
 

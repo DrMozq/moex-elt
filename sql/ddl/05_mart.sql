@@ -28,3 +28,19 @@ CREATE TABLE IF NOT EXISTS mart.market_daily (
     built_at            TIMESTAMPTZ     NOT NULL DEFAULT now(),
     PRIMARY KEY (boardid, trade_date)
 );
+
+CREATE TABLE IF NOT EXISTS mart.top_movers (
+    period        TEXT         NOT NULL,
+    direction     TEXT         NOT NULL,
+    rank          SMALLINT     NOT NULL,
+    boardid       TEXT         NOT NULL,
+    secid         TEXT         NOT NULL,
+    shortname     TEXT         NOT NULL,
+    start_date    DATE         NOT NULL,
+    end_date      DATE         NOT NULL,
+    start_price   NUMERIC      NOT NULL,
+    end_price     NUMERIC      NOT NULL,
+    return_pct    NUMERIC      NOT NULL,
+    built_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    PRIMARY KEY (period, direction, rank)
+);
