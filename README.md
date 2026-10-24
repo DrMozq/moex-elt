@@ -20,7 +20,7 @@ flowchart LR
 
 | Layer | Storage | Purpose |
 |-------|---------|---------|
-| raw   | `data/raw/<dataset>/<board>/<date>.jsonl` | Exact copy of API responses; allows reloading without calling the API again |
+| raw   | `data/raw/<dataset>/<board>/<date>.jsonl` | Records as received from the API, one JSON object per line; allows reloading without calling the API again |
 | stg   | `stg.*` | All source columns as `TEXT`; replaced on every load |
 | core  | `core.*` | Typed, deduplicated history with natural primary keys |
 | mart  | `mart.*` | Ready-to-query tables for analysts and dashboards |
@@ -35,6 +35,31 @@ flowchart LR
 | `mart.daily_returns` | security × trade date | Daily return vs the previous trading day, enriched with reference data |
 | `mart.market_daily` | board × trade date | Market breadth for shares: advancers, decliners, turnover, mean and median return |
 | `mart.top_movers` | period × direction × rank | Top 10 gainers and losers among level 1 shares for 1 week, 1 month and 3 months |
+
+## What happens on each run
+
+1. **Reference data.** The current list of securities on the board is fetched
+   from the MOEX ISS API and saved to `data/raw/securities/<board>/<date>.jsonl`.
+   It is loaded into staging and upserted into `core.securities`.
+2. **Date selection.** The dates to load are taken from the `--from` and `--to`
+   arguments. If they are omitted, the run continues from the day after the
+   last successfully loaded date up to yesterday.
+3. **Daily quotes.** For each date, the trading results are fetched and saved
+   to `data/raw/history/<board>/<date>.jsonl`. The staging table is cleared
+   and filled with this file, then the rows are upserted into
+   `core.daily_quotes` with proper data types.
+4. **Load log.** Every attempt is recorded in `meta.load_log`: one entry per
+   dataset and date, with its status and number of rows.
+5. **Failures.** Each date is loaded in its own transaction. If a date fails,
+   its changes are rolled back, the failure is logged, and the run stops.
+   The next run retries from the failed date.
+6. **Marts.** All marts are fully rebuilt from core.
+7. **Data quality checks.** The checks run in the same transaction as the
+   mart rebuild. If any check fails, the transaction is rolled back and the
+   previous version of the marts stays visible.
+
+Before the first run, create the schemas and tables with `python -m app init`.
+Database connection settings are read from `.env`.
 
 ## How it works
 
@@ -71,7 +96,7 @@ an empty result means the check passed.
 
 ## Getting started
 
-Requirements: Python 3.12+, PostgreSQL 14+.
+Tested with Python 3.14 and PostgreSQL 16.
 
 ```bash
 git clone git@github.com:DrMozq/moex-elt.git
