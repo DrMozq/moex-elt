@@ -28,3 +28,7 @@ class ApiError(PipelineError):
 
 class DataError(PipelineError):
     """The API returned unexpected or malformed data."""
+
+
+class DataQualityError(PipelineError):
+    """One or more data quality checks failed."""

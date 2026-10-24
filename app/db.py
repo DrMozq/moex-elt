@@ -32,6 +32,14 @@ def execute_file(conn: connection, path: Path) -> int:
         return cur.rowcount
 
 
+def fetch_file(conn: connection, path: Path, limit: int) -> list[tuple]:
+    """Execute a SQL file and return up to `limit` rows of its result."""
+    sql = path.read_text(encoding="utf-8")
+    with conn.cursor() as cur:
+        cur.execute(sql)
+        return cur.fetchmany(limit)
+
+
 def init_db(conn: connection, ddl_dir: Path) -> None:
     paths = sorted(ddl_dir.glob("*.sql"))
     if not paths:

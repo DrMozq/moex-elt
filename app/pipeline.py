@@ -6,7 +6,8 @@ from typing import Any
 
 from psycopg2.extensions import connection
 
-from app.config import Settings
+from app.checks import run_checks
+from app.config import CHECKS_DIR, Settings
 from app.db import db_connection
 from app.errors import ConfigError
 from app.extract.http import ApiClient
@@ -92,11 +93,14 @@ def _ingest(
 
 
 def _build_marts(settings: Settings) -> None:
-    """Rebuild all marts from core in one transaction."""
+    """Rebuild all marts, run data quality checks and publish in one transaction."""
     with db_connection(settings.db) as conn:
         returns = build_daily_returns(conn)
         market = build_market_daily(conn)
         top_movers = build_top_movers(conn)
+
+        run_checks(conn, CHECKS_DIR)
+
     logger.info(
         "Rebuilt marts: daily_returns=%d, market_daily=%d, top_movers=%d rows",
         returns,
