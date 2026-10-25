@@ -155,3 +155,4 @@ sql/
 - Incremental rebuild of marts (recompute only the recent tail) for larger volumes
 - Making a reference data failure non-blocking for the history load
 - Automatic retry of failed dates from manual reloads (select dates without a successful load instead of using the watermark)
+- Trading calendar to detect a fully empty trading day (currently indistinguishable from a holiday)

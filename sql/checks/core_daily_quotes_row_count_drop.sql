@@ -12,4 +12,5 @@ compared AS (
 )
 SELECT trade_date, row_count, prev_row_count
 FROM compared
-WHERE row_count < prev_row_count * 0.9;
+WHERE row_count < prev_row_count * 0.9
+    AND trade_date > (SELECT max(trade_date) FROM core.daily_quotes) - 14;

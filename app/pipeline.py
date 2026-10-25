@@ -100,8 +100,11 @@ def _ingest(
     except Exception as e:
         error = f"{type(e).__name__}: {e}"
         logger.error("Failed to load %s for %s: %s", dataset, as_of_date, error)
-        with db_connection(settings.db) as conn:
-            log_load(conn, dataset, BOARD, as_of_date, "failed", error=error)
+        try:
+            with db_connection(settings.db) as conn:
+                log_load(conn, dataset, BOARD, as_of_date, "failed", error=error)
+        except Exception:
+            logger.exception("Could not record failure in load_log")
         raise
 
 
