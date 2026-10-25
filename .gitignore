@@ -13,3 +13,6 @@ data/
 # Editors
 .idea/
 .vscode/
+
+# Tests
+.pytest_cache/
