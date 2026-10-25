@@ -47,13 +47,6 @@ if __name__ == "__main__":
     from app.config import load_settings
     from app.db import db_connection
 
-    settings = load_settings()
-    with db_connection(settings.db) as conn:
-        print("before:", get_watermark(conn, "history", "TQBR"))
-        log_load(conn, "history", "TQBR", date(2026, 10, 6), "success", rows_loaded=507)
-        print("after:", get_watermark(conn, "history", "TQBR"))
-
-        try:
-            log_load(conn, "history", "TQBR", date(2026, 10, 6), "sucess")
-        except ValueError as e:
-            print("rejected:", e)
+    with db_connection(load_settings().db) as conn:
+        print("history watermark:", get_watermark(conn, "history", "TQBR"))
+        print("securities watermark:", get_watermark(conn, "securities", "TQBR"))

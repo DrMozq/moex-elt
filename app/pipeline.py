@@ -165,10 +165,3 @@ def run(
             logger.info("No new trade dates to load")
 
     _build_marts(settings)
-
-
-if __name__ == "__main__":
-    from app.config import load_settings
-
-    logging.basicConfig(level=logging.INFO)
-    run(load_settings())

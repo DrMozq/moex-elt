@@ -9,6 +9,8 @@ from app.errors import ApiError, DataError, RateLimitError, RetryableError
 
 logger = logging.getLogger(__name__)
 
+MAX_DELAY = 60.0  # seconds, upper bound for any pause between retries
+
 
 class ApiClient:
     """HTTP client for JSON APIs."""
@@ -61,6 +63,7 @@ class ApiClient:
                     delay = e.retry_after
                 else:
                     delay = self.base_delay * (2 ** (attempt - 1))
+                delay = min(max(delay, 0.0), MAX_DELAY)
                 logger.warning(
                     "Request failed: %s. Retry %d/%d in %.1f s",
                     e,
