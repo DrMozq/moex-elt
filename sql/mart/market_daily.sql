@@ -20,4 +20,5 @@ SELECT
     )                                                AS median_return_pct
 FROM mart.daily_returns
 WHERE security_class IN ('common_share', 'preferred_share', 'depositary_receipt')
+    AND value > 0
 GROUP BY boardid, trade_date;

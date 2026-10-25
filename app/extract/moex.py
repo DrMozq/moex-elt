@@ -65,6 +65,23 @@ def iter_securities(client: ApiClient, board: str = "TQBR") -> Iterator[dict[str
         yield dict(zip(columns, row))
 
 
+def get_history_range(client: ApiClient, board: str = "TQBR") -> tuple[date, date]:
+    """Return the first and last dates with published trading results for a board."""
+    path = f"history/engines/stock/markets/shares/boards/{board}/dates.json"
+    response = client.get(path, {"iss.meta": "off"})
+
+    try:
+        block = response["dates"]
+        row = dict(zip(block["columns"], block["data"][0]))
+        first, last = row["from"], row["till"]
+    except (KeyError, IndexError) as e:
+        raise DataError(
+            f"Unexpected response structure for {board} dates: {e!r}"
+        ) from e
+
+    return date.fromisoformat(first), date.fromisoformat(last)
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -78,3 +95,6 @@ if __name__ == "__main__":
         records = list(iter_securities(client))
         print(len(records))
         print(records[0])
+
+        # dates
+        print(get_history_range(client))

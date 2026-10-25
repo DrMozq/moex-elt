@@ -12,6 +12,7 @@ logger = logging.getLogger("app")
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse command-line arguments and validate the date range."""
     parser = argparse.ArgumentParser(
         prog="python -m app", description="MOEX ELT pipeline"
     )
@@ -35,10 +36,19 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         dest="date_to",
         type=date.fromisoformat,
         metavar="YYYY-MM-DD",
-        help="last trade date to load (default: yesterday)",
+        help="last trade date to load (default: latest published date)",
     )
 
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if (
+        args.command == "run"
+        and args.date_from is not None
+        and args.date_to is not None
+        and args.date_from > args.date_to
+    ):
+        parser.error("--from must not be later than --to")
+
+    return args
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -57,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
             run(settings, args.date_from, args.date_to)
 
     except PipelineError as e:
-        logger.error("Pipeline failed: %s", e)
+        logger.error("Pipeline failed: %s", e, exc_info=args.verbose)
         return 1
 
     return 0
