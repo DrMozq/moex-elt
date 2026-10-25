@@ -51,7 +51,7 @@ if __name__ == "__main__":
             path = raw_path(root, "history", "TQBR", d)
             n = write_jsonl(path, iter_history(client, d))
             print(path, n)
-            
+
         print(next(read_jsonl(raw_path(root, "history", "TQBR", date(2026, 10, 6)))))
 
         # securities

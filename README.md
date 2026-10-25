@@ -98,7 +98,7 @@ an empty result means the check passed.
 | Check | What it catches |
 |-------|-----------------|
 | `core_daily_quotes_valid_prices` | Non-positive close prices or `low > high` |
-| `core_daily_quotes_row_count_drop` | A trading day with at least 10% fewer rows than the previous one (partial load) |
+| `core_daily_quotes_row_count_drop` | A trading day in the last 14 days with at least 10% fewer rows than the previous one (partial load) |
 | `mart_daily_returns_matches_core` | Rows lost or duplicated between core and the mart |
 | `core_securities_missing_for_last_day` | Too many traded securities missing from the reference table |
 
@@ -126,6 +126,17 @@ python -m app -v run                                  # debug logging
 
 Exit codes: `0` success, `1` pipeline failure, `2` invalid arguments.
 
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest -v
+```
+
+Unit tests cover the logic that runs without a database or network:
+date selection for incremental and manual runs, cursor pagination of the
+ISS API (with a fake client) and atomic writing of raw files.
+
 ## Project structure
 
 ```
@@ -145,11 +156,13 @@ sql/
 ├── transform/         stg → core
 ├── mart/              core → mart
 └── checks/            data quality checks
+tests/                 unit tests (pytest)
+requirements.txt       runtime dependencies
+requirements-dev.txt   runtime + test and lint tools
 ```
 
 ## Possible improvements
 
-- Unit tests with pytest for date selection, pagination and raw file I/O
 - Scheduling with Airflow instead of manual runs
 - SCD Type 2 history for reference data, built from daily raw snapshots
 - Incremental rebuild of marts (recompute only the recent tail) for larger volumes

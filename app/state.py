@@ -6,7 +6,10 @@ VALID_STATUSES = ("success", "failed")
 
 
 def get_watermark(conn: connection, dataset: str, board: str) -> date | None:
-    """Return the latest successfully loaded as-of date, or None if nothing was loaded yet."""
+    """Return the latest successfully loaded as-of date.
+
+    Return None if nothing was loaded yet.
+    """
     query = """
         SELECT max(as_of_date)
         FROM meta.load_log
